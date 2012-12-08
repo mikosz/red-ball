@@ -1,0 +1,11 @@
+Texture2D texture;
+SampleState sampleState;
+
+struct Pixel {
+	float4 position: SV_POSITION;
+	float2 textureCoordinates: TEXCOORD0;
+};
+
+float4 main(Pixel pixel) : SV_TARGET {
+	return texture.Sample(sampleState, pixel.textureCoordinates);
+}
