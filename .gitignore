@@ -11,3 +11,12 @@
 *.lai
 *.la
 *.a
+
+# build directories
+build/
+Debug/
+Release/
+
+# eclipse files
+.project
+.cproject

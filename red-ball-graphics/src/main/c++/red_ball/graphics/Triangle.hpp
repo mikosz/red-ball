@@ -3,6 +3,8 @@
 
 #include "red_ball/utils/COMWrapper.hpp"
 #include "Model.hpp"
+#include "Texture.hpp"
+#include "SamplerState.hpp"
 
 namespace red_ball {
 namespace graphics {
@@ -17,6 +19,10 @@ public:
     size_t vertexCount() const;
 
 private:
+
+    Texture texture_;
+
+    SamplerState samplerState_;
 
     utils::COMWrapper<ID3D11Buffer> vertexBuffer_;
 

@@ -11,7 +11,6 @@ struct Vertex {
 
 struct Pixel {
 	float4 position: SV_POSITION;
-	float4 colour: COLOR;
 	float2 textureCoordinates: TEXCOORD0;
 };
 
@@ -20,7 +19,7 @@ Pixel main(Vertex vertex) {
 	
 	vertex.position.w = 1.0f;
 	pixel.position = mul(mul(mul(vertex.position, world), view), projection);
-	pixel.texureCoordinates = vertex.textureCoordinates;
+	pixel.textureCoordinates = vertex.textureCoordinates;
 	
 	return pixel;
 }

@@ -1,5 +1,5 @@
-Texture2D texture;
-SampleState sampleState;
+Texture2D shaderTexture;
+SamplerState samplerState;
 
 struct Pixel {
 	float4 position: SV_POSITION;
@@ -7,5 +7,5 @@ struct Pixel {
 };
 
 float4 main(Pixel pixel) : SV_TARGET {
-	return texture.Sample(sampleState, pixel.textureCoordinates);
+	return shaderTexture.Sample(samplerState, pixel.textureCoordinates);
 }

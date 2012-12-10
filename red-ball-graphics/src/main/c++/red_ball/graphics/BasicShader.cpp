@@ -21,7 +21,7 @@ const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputElementDescriptions() {
         descriptions[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
         descriptions[0].AlignedByteOffset = 0;
 
-        descriptions[1].SemanticName = "TEXCOORD0";
+        descriptions[1].SemanticName = "TEXCOORD";
         descriptions[1].Format = DXGI_FORMAT_R32G32_FLOAT;
         descriptions[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
         descriptions[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
