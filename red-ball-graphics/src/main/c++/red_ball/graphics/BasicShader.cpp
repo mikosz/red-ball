@@ -12,9 +12,10 @@ const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputElementDescriptions() {
     static std::vector<D3D11_INPUT_ELEMENT_DESC> descriptions;
 
     if (descriptions.empty()) {
-        descriptions.resize(2);
+        descriptions.resize(3);
         ZeroMemory(&descriptions[0], sizeof(D3D11_INPUT_ELEMENT_DESC));
         ZeroMemory(&descriptions[1], sizeof(D3D11_INPUT_ELEMENT_DESC));
+        ZeroMemory(&descriptions[2], sizeof(D3D11_INPUT_ELEMENT_DESC));
 
         descriptions[0].SemanticName = "POSITION";
         descriptions[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -25,6 +26,11 @@ const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputElementDescriptions() {
         descriptions[1].Format = DXGI_FORMAT_R32G32_FLOAT;
         descriptions[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
         descriptions[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+        descriptions[2].SemanticName = "NORMAL";
+        descriptions[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+        descriptions[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+        descriptions[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
     }
 
     return descriptions;

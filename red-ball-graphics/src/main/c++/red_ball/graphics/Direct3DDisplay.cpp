@@ -305,6 +305,8 @@ Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
 
     matrixBuffer_.reset(new MatrixBuffer(device_));
     D3DXMatrixIdentity(&matrixBuffer_->world());
+
+    directionalLightBuffer_.reset(new DirectionalLightBuffer(device_));
 }
 
 void Direct3DDisplay::render() {
@@ -315,6 +317,7 @@ void Direct3DDisplay::render() {
     matrixBuffer_->projection() = perspectiveProjectionMatrix_;
     camera_.viewMatrix(&matrixBuffer_->view());
     matrixBuffer_->bind(deviceContext_, 0);
+    directionalLightBuffer_->bind(deviceContext_, 0);
     shader_->bind(deviceContext_);
     model_->render(deviceContext_);
 

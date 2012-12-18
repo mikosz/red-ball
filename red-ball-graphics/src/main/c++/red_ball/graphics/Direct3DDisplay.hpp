@@ -15,6 +15,7 @@
 #include "Shader.hpp"
 #include "Model.hpp"
 #include "MatrixBuffer.hpp"
+#include "DirectionalLightBuffer.hpp"
 #include "Camera.hpp"
 
 namespace red_ball {
@@ -54,6 +55,8 @@ private:
     boost::scoped_ptr<Model> model_;
 
     boost::scoped_ptr<MatrixBuffer> matrixBuffer_;
+
+    boost::scoped_ptr<DirectionalLightBuffer> directionalLightBuffer_;
 
     Camera camera_;
 

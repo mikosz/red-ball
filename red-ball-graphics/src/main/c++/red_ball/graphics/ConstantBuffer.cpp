@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <boost/lexical_cast.hpp>
+
 #include "exceptions.hpp"
 
 using namespace red_ball;
@@ -30,7 +32,8 @@ ConstantBuffer::ConstantBuffer(ID3D11Device* device, size_t bufferSize) :
 void ConstantBuffer::bindData(
         ID3D11DeviceContext* deviceContext,
         size_t bufferNumber,
-        const boost::uint8_t* data
+        const boost::uint8_t* data,
+        TargetShader targetShader
         ) const
 {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -40,5 +43,16 @@ void ConstantBuffer::bindData(
             );
     std::copy(data, data + bufferSize_, reinterpret_cast<boost::uint8_t*> (mappedResource.pData));
     deviceContext->Unmap(buffer_, 0);
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &buffer_.get());
+    switch (targetShader) {
+    case VERTEX_SHADER:
+        deviceContext->VSSetConstantBuffers(bufferNumber, 1, &buffer_.get());
+        break;
+    case PIXEL_SHADER:
+        deviceContext->PSSetConstantBuffers(bufferNumber, 1, &buffer_.get());
+        break;
+    default:
+        throw core::LogicError(
+                "Bad enum value for targetShader: " + boost::lexical_cast<std::string>(targetShader)
+                );
+    }
 }

@@ -20,9 +20,19 @@ public:
 
 protected:
 
+    enum TargetShader {
+        VERTEX_SHADER,
+        PIXEL_SHADER,
+    };
+
     ConstantBuffer(ID3D11Device* device, size_t bufferSize);
 
-    void bindData(ID3D11DeviceContext* deviceContext, size_t bufferNumber, const boost::uint8_t* data) const;
+    void bindData(
+            ID3D11DeviceContext* deviceContext,
+            size_t bufferNumber,
+            const boost::uint8_t* data,
+            TargetShader targetShader
+            ) const;
 
 private:
 

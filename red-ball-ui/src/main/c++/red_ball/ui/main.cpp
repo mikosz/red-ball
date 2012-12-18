@@ -1,4 +1,6 @@
 #include <string>
+#include <sstream>
+#include <iostream>
 
 #include "red_ball/ui/UI.hpp"
 
@@ -10,7 +12,10 @@ int redBallMain(HINSTANCE hInstance, int cmdShow) {
         UI userInterface(hInstance, cmdShow);
         return userInterface.loop();
     } catch (const std::exception& e) {
-        MessageBox(0, ("Caught error: " + std::string(e.what())).c_str(), "Error", MB_OK | MB_ICONERROR);
+        std::ostringstream oss;
+        oss << "Caught error: " << e.what();
+        std::cerr << oss.str() << '\n';
+        MessageBox(0, oss.str().c_str(), "Error", MB_OK | MB_ICONERROR);
         return 1;
     }
 }

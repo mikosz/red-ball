@@ -17,9 +17,17 @@ struct VertexType {
 
     D3DXVECTOR2 textureCoordinates;
 
-    VertexType(const D3DXVECTOR3& position_, const D3DXVECTOR2& textureCoordinates_) :
+    D3DXVECTOR3 normal;
+
+    VertexType(
+            const D3DXVECTOR3& position_,
+            const D3DXVECTOR2& textureCoordinates_,
+            const D3DXVECTOR3& normal_
+            ) :
         position(position_),
-        textureCoordinates(textureCoordinates_) {
+        textureCoordinates(textureCoordinates_),
+        normal(normal_)
+    {
     }
 
 };
@@ -31,9 +39,9 @@ Triangle::Triangle(ID3D11Device* device) :
     samplerState_(device)
 {
     std::vector<VertexType> vertices;
-    vertices.push_back(VertexType(D3DXVECTOR3(-1.0f, -1.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f)));
-    vertices.push_back(VertexType(D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.5f, 0.0f)));
-    vertices.push_back(VertexType(D3DXVECTOR3(1.0f, -1.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f)));
+    vertices.push_back(VertexType(D3DXVECTOR3(-1.0f, -1.0f, 0.0f), D3DXVECTOR2(0.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, -1.0f)));
+    vertices.push_back(VertexType(D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR2(0.5f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, -1.0f)));
+    vertices.push_back(VertexType(D3DXVECTOR3(1.0f, -1.0f, 0.0f), D3DXVECTOR2(1.0f, 1.0f), D3DXVECTOR3(0.0f, 0.0f, -1.0f)));
 
     std::vector<unsigned long> indices;
     indices.push_back(0);

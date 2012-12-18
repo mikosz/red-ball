@@ -1,11 +1,21 @@
 Texture2D shaderTexture;
 SamplerState samplerState;
 
+cbuffer DirectionalLight {
+    float4 diffuseColour;
+    float3 lightDirection;
+    
+    float padding_;
+};
+
 struct Pixel {
 	float4 position: SV_POSITION;
 	float2 textureCoordinates: TEXCOORD0;
+	float3 normal: NORMAL;
 };
 
 float4 main(Pixel pixel) : SV_TARGET {
-	return shaderTexture.Sample(samplerState, pixel.textureCoordinates);
+	float4 textureColour = shaderTexture.Sample(samplerState, pixel.textureCoordinates);
+	float lightIntensity = saturate(dot(pixel.normal, -lightDirection));
+	return diffuseColour * lightIntensity * textureColour;
 }
