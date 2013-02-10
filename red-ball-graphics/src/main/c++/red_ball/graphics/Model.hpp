@@ -9,6 +9,9 @@ namespace graphics {
 class Model {
 public:
 
+    virtual ~Model() {
+    }
+
     virtual void render(ID3D11DeviceContext* context) const = 0;
 
     virtual size_t vertexCount() const = 0;

@@ -24,5 +24,6 @@ int redBallMain(HINSTANCE hInstance, int cmdShow) {
 }  // namespace red_ball
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int cmdShow) {
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     return red_ball::ui::redBallMain(hInstance, cmdShow);
 }

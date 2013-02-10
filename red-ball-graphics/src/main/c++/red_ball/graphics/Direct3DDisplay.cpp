@@ -14,7 +14,8 @@
 #include "red_ball/utils/COMWrapper.hpp"
 
 // XXX: TEST
-#include "Triangle.hpp"
+#include "BasicModel.hpp"
+#include "ObjFileLoader.hpp"
 #include "BasicShader.hpp"
 
 using namespace red_ball;
@@ -301,7 +302,8 @@ Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
                     )
     );
 
-    model_.reset(new Triangle(device_));
+    ObjFileLoader loader("red-ball-graphics/src/main/resources/cube.objfile");
+    model_.reset(new BasicModel(device_, loader));
 
     matrixBuffer_.reset(new MatrixBuffer(device_));
     D3DXMatrixIdentity(&matrixBuffer_->world());
@@ -310,8 +312,8 @@ Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
 }
 
 void Direct3DDisplay::render() {
-    static const float RED[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-    deviceContext_->ClearRenderTargetView(renderTargetView_, RED);
+    static const float BLACK[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    deviceContext_->ClearRenderTargetView(renderTargetView_, BLACK);
     deviceContext_->ClearDepthStencilView(depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     matrixBuffer_->projection() = perspectiveProjectionMatrix_;
