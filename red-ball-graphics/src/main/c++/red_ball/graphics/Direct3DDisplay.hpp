@@ -15,6 +15,7 @@
 #include "Shader.hpp"
 #include "Model.hpp"
 #include "MatrixBuffer.hpp"
+#include "AmbientLightBuffer.hpp"
 #include "DirectionalLightBuffer.hpp"
 #include "Camera.hpp"
 
@@ -55,6 +56,8 @@ private:
     boost::scoped_ptr<Model> model_;
 
     boost::scoped_ptr<MatrixBuffer> matrixBuffer_;
+
+    boost::scoped_ptr<AmbientLightBuffer> ambientLightBuffer_;
 
     boost::scoped_ptr<DirectionalLightBuffer> directionalLightBuffer_;
 

@@ -2,13 +2,22 @@
 
 using namespace red_ball::graphics;
 
-DirectionalLightBuffer::DirectionalLightBuffer(ID3D11Device* device) :
-    ConstantBuffer(device, sizeof(Data)) {
+DirectionalLightBuffer::DirectionalLightBuffer(
+        ID3D11Device* device,
+        const D3DXVECTOR4& diffuseColour,
+        const D3DXVECTOR3& lightDirection
+        ) :
+        ConstantBuffer(device, sizeof(Data)),
+        data_(diffuseColour, lightDirection)
+{
 }
 
 void DirectionalLightBuffer::bind(ID3D11DeviceContext* deviceContext, size_t bufferNumber) const {
-    Data data;
-    data.diffuseColour = D3DXVECTOR4(0.6f, 0.1f, 0.1f, 1.0f);
-    data.lightDirection = D3DXVECTOR3(0.0f, 0.0f, 1.0f);
-    bindData(deviceContext, bufferNumber, reinterpret_cast<boost::uint8_t*>(&data), PIXEL_SHADER);
+    bindData(deviceContext, bufferNumber, reinterpret_cast<const boost::uint8_t*>(&data_), PIXEL_SHADER);
+}
+
+DirectionalLightBuffer::Data::Data(const D3DXVECTOR4& diffuseColour_, const D3DXVECTOR3& lightDirection_) :
+        diffuseColour(diffuseColour_),
+        lightDirection(lightDirection_)
+{
 }

@@ -12,7 +12,7 @@
 using namespace red_ball::graphics;
 
 BasicModel::BasicModel(ID3D11Device* device, const ModelLoader& modelLoader) :
-    texture_(device, "red-ball-graphics/src/main/resources/bitch-please.dds"),
+    texture_(device, "red-ball-graphics/src/main/resources/seafloor.dds"),
     samplerState_(device),
     vertexCount_(modelLoader.indices()->size())
 {
