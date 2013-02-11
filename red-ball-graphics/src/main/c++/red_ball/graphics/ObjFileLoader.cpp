@@ -6,6 +6,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/phoenix.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/support_istream_iterator.hpp>
@@ -20,6 +21,7 @@ namespace {
 namespace spirit = boost::spirit;
 namespace qi = spirit::qi;
 namespace ascii = spirit::ascii;
+namespace phoenix = boost::phoenix;
 
 struct ObjectVertex {
 
@@ -74,7 +76,7 @@ public:
         ruleEndRule_ = (qi::eol | qi::eoi) >> *blankRule_;
         smoothingGroupRule_ = 's' >> (qi::lit("off") | qi::int_) >> ruleEndRule_;
         materialRule_ = qi::lit("usemtl") >> (*(qi::char_ - ascii::space)) >> ruleEndRule_;
-        objectVertexRule_ = (qi::uint_ % '/')[boost::bind(&ObjFileParser::makeObjectVertex, this, _1)];
+        objectVertexRule_ = (qi::uint_ % '/')[qi::_val = phoenix::bind(&ObjFileParser::makeObjectVertex, this, qi::_1)];
         faceRule_ = 'f' >> qi::repeat(3)[objectVertexRule_][boost::bind(&ObjFileParser::addFace, this, _1)]
                 >> ruleEndRule_;
         positionRule_ = 'v' >> qi::repeat(3)[qi::double_][boost::bind(&ObjFileParser::addPosition, this, _1)]
