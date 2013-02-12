@@ -25,6 +25,10 @@ Model::Model() :
 {
 }
 
+void Model::rotateBy(float pitch, float yaw, float roll) {
+    rotateBy(D3DXVECTOR3(pitch, yaw, roll));
+}
+
 void Model::rotateBy(const D3DXVECTOR3& radians) {
     rotation_ += radians;
     rotation_.x = removeFullRotations(rotation_.x);

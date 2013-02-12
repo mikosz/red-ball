@@ -5,9 +5,11 @@
 
 #include <d3d11.h>
 
+#include "red_ball/core/actions/Timeline.hpp"
 #include "red_ball/graphics/Model.hpp"
 #include "red_ball/graphics/RenderingQueue.hpp"
 #include "red_ball/graphics/Direct3DDisplay.hpp"
+#include "red_ball/utils/Timer.hpp"
 
 namespace red_ball {
 namespace game {
@@ -19,7 +21,13 @@ public:
 
     ~Actor();
 
-    void update(float dt);
+    void update(utils::Timer::Seconds time);
+
+    void scheduleAction(utils::Timer::Seconds delay, core::actions::ActionPtr action);
+
+    graphics::Model& model() {
+        return *model_;
+    }
 
 private:
 
@@ -28,6 +36,8 @@ private:
     boost::shared_ptr<graphics::Model> model_;
 
     graphics::RenderingQueue::ModelId modelId_;
+
+    core::actions::Timeline actionTimeline_;
 
 };
 

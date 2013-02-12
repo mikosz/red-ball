@@ -1,8 +1,11 @@
 #include "Window.hpp"
 
 #include <iostream>
-#include <boost/bind.hpp>
 #include <string>
+
+#include <boost/bind.hpp>
+
+#include "red_ball/core/actions/Change.hpp"
 
 using namespace red_ball::ui;
 
@@ -43,7 +46,26 @@ Window::Window(const std::string& windowClass, HINSTANCE hInstance, int cmdShow)
 
     display_.reset(new graphics::Direct3DDisplay(hWnd_));
 
-    game_.addActor(boost::shared_ptr<game::Actor>(new game::Actor(display_.get())));
+    boost::shared_ptr<game::Actor> actor(new game::Actor(display_.get()));
+    game_.addActor(actor);
+
+    core::actions::ActionPtr rotateY(
+            new core::actions::Change<float>(
+                    3.14f,
+                    31.4f,
+                    boost::bind(&graphics::Model::rotateBy, boost::ref(actor->model()), 0.0f, _1, 0.0f)
+                    )
+            );
+    actor->scheduleAction(3.0f, rotateY);
+
+    core::actions::ActionPtr rotateX(
+            new core::actions::Change<float>(
+                    3.14f / 2,
+                    31.4f / 2,
+                    boost::bind(&graphics::Model::rotateBy, boost::ref(actor->model()), _1, 0.0f, 0.0f)
+                    )
+            );
+    actor->scheduleAction(5.0f, rotateX);
 }
 
 Window::~Window() {

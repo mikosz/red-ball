@@ -18,6 +18,10 @@ Actor::~Actor() {
     renderingQueue_->remove(modelId_);
 }
 
-void Actor::update(float dt) {
+void Actor::update(utils::Timer::Seconds time) {
+    actionTimeline_.update(time);
+}
 
+void Actor::scheduleAction(utils::Timer::Seconds delay, core::actions::ActionPtr action) {
+    actionTimeline_.schedule(delay, action);
 }

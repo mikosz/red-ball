@@ -317,7 +317,7 @@ Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
 
     ambientLightBuffer_.reset(new AmbientLightBuffer(device_, D3DXVECTOR4(0.15f, 0.15f, 0.15f, 1.0f)));
 
-    directionalLightBuffer_.reset(new DirectionalLightBuffer(device_, D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f)));
+    directionalLightBuffer_.reset(new DirectionalLightBuffer(device_, D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f), D3DXVECTOR3(-1.0f, -1.0f, 1.0f)));
 
     renderingQueue_.reset(new RenderingQueue());
 }

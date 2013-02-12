@@ -23,6 +23,8 @@ public:
         translation_ = location;
     }
 
+    void rotateBy(float pitch, float yaw, float roll);
+
     void rotateBy(const D3DXVECTOR3& radians);
 
     void scaleBy(const D3DXVECTOR3& times) {
