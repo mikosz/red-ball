@@ -18,6 +18,7 @@
 #include "AmbientLightBuffer.hpp"
 #include "DirectionalLightBuffer.hpp"
 #include "Camera.hpp"
+#include "RenderingQueue.hpp"
 
 namespace red_ball {
 namespace graphics {
@@ -28,6 +29,14 @@ public:
     Direct3DDisplay(HWND hWnd);
 
     void render();
+
+    boost::shared_ptr<graphics::RenderingQueue> renderingQueue() {
+        return renderingQueue_;
+    }
+
+    ID3D11Device& device() {
+        return *device_;
+    }
 
 private:
 
@@ -47,19 +56,21 @@ private:
 
     utils::COMWrapper<ID3D11RasterizerState> rasteriserState_;
 
-    D3DXMATRIX perspectiveProjectionMatrix_;
-
-    D3DXMATRIX orthographicProjectionMatrix_;
-
     boost::scoped_ptr<Shader> shader_;
 
-    boost::scoped_ptr<Model> model_;
+    boost::scoped_ptr<MatrixBuffer> worldMatrixBuffer_;
 
-    boost::scoped_ptr<MatrixBuffer> matrixBuffer_;
+    boost::scoped_ptr<MatrixBuffer> perspectiveProjectionMatrixBuffer_;
+
+    boost::scoped_ptr<MatrixBuffer> orthographicProjectionMatrixBuffer_;
+
+    boost::scoped_ptr<MatrixBuffer> viewMatrixBuffer_;
 
     boost::scoped_ptr<AmbientLightBuffer> ambientLightBuffer_;
 
     boost::scoped_ptr<DirectionalLightBuffer> directionalLightBuffer_;
+
+    boost::shared_ptr<graphics::RenderingQueue> renderingQueue_;
 
     Camera camera_;
 

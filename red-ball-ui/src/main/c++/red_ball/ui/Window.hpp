@@ -10,6 +10,7 @@
 
 #include "EventListener.hpp"
 #include "red_ball/graphics/Direct3DDisplay.hpp"
+#include "red_ball/game/Game.hpp"
 
 namespace red_ball {
 namespace ui {
@@ -56,6 +57,8 @@ private:
     EventListener eventListener_;
 
     boost::scoped_ptr<graphics::Direct3DDisplay> display_;
+
+    game::Game game_;
 
 };
 

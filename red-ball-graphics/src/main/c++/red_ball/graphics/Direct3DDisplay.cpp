@@ -12,11 +12,8 @@
 #include <d3dcommon.h>
 
 #include "red_ball/utils/COMWrapper.hpp"
-
-// XXX: TEST
-#include "BasicModel.hpp"
-#include "ObjFileLoader.hpp"
 #include "BasicShader.hpp"
+#include "RenderingQueue.hpp"
 
 using namespace red_ball;
 using namespace red_ball::graphics;
@@ -287,8 +284,24 @@ Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
     setupDepthStencilView(&depthStencilView_, depthBuffer_, device_);
     setupRasteriser(&rasteriserState_, *device_, *deviceContext_);
     setupViewport(deviceContext_, info.resolution.first, info.resolution.second);
-    setupOrthographicProjectionMatrix(&orthographicProjectionMatrix_, info.resolution.first, info.resolution.second);
-    setupPerspectiveProjectionMatrix(&perspectiveProjectionMatrix_, info.resolution.first, info.resolution.second);
+
+    orthographicProjectionMatrixBuffer_.reset(new MatrixBuffer(device_));
+    setupOrthographicProjectionMatrix(
+            &orthographicProjectionMatrixBuffer_->matrix(),
+            info.resolution.first,
+            info.resolution.second
+            );
+
+    perspectiveProjectionMatrixBuffer_.reset(new MatrixBuffer(device_));
+    setupPerspectiveProjectionMatrix(
+            &perspectiveProjectionMatrixBuffer_->matrix(),
+            info.resolution.first,
+            info.resolution.second
+            );
+
+    viewMatrixBuffer_.reset(new MatrixBuffer(device_));
+
+    worldMatrixBuffer_.reset(new MatrixBuffer(device_));
 
     deviceContext_->OMSetRenderTargets(1, &renderTargetView_.get(), depthStencilView_);
 
@@ -302,15 +315,11 @@ Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
                     )
     );
 
-    ObjFileLoader loader("red-ball-graphics/src/main/resources/cube.objfile");
-    model_.reset(new BasicModel(device_, loader));
-
-    matrixBuffer_.reset(new MatrixBuffer(device_));
-    D3DXMatrixIdentity(&matrixBuffer_->world());
-
     ambientLightBuffer_.reset(new AmbientLightBuffer(device_, D3DXVECTOR4(0.15f, 0.15f, 0.15f, 1.0f)));
 
     directionalLightBuffer_.reset(new DirectionalLightBuffer(device_, D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f)));
+
+    renderingQueue_.reset(new RenderingQueue());
 }
 
 void Direct3DDisplay::render() {
@@ -318,15 +327,16 @@ void Direct3DDisplay::render() {
     deviceContext_->ClearRenderTargetView(renderTargetView_, BLACK);
     deviceContext_->ClearDepthStencilView(depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    D3DXMatrixRotationX(&matrixBuffer_->world(), 0.5f);
+    camera_.viewMatrix(&viewMatrixBuffer_->matrix());
+    viewMatrixBuffer_->bind(deviceContext_, 1);
 
-    matrixBuffer_->projection() = perspectiveProjectionMatrix_;
-    camera_.viewMatrix(&matrixBuffer_->view());
-    matrixBuffer_->bind(deviceContext_, 0);
+    perspectiveProjectionMatrixBuffer_->bind(deviceContext_, 2);
+
     ambientLightBuffer_->bind(deviceContext_, 0);
     directionalLightBuffer_->bind(deviceContext_, 1);
     shader_->bind(deviceContext_);
-    model_->render(deviceContext_);
+
+    renderingQueue_->render(deviceContext_, worldMatrixBuffer_.get());
 
     swapChain_->Present(1, 0);
 }

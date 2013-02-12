@@ -16,31 +16,13 @@ public:
 
     void bind(ID3D11DeviceContext* deviceContext, size_t bufferNumber) const;
 
-    D3DXMATRIX& world() {
-        return data_.world;
-    }
-
-    D3DXMATRIX& view() {
-        return data_.view;
-    }
-
-    D3DXMATRIX& projection() {
-        return data_.projection;
+    D3DXMATRIX& matrix() {
+        return matrix_;
     }
 
 private:
 
-    struct Data {
-
-        D3DXMATRIX world;
-
-        D3DXMATRIX view;
-
-        D3DXMATRIX projection;
-
-    };
-
-    Data data_;
+    D3DXMATRIX matrix_;
 
 };
 

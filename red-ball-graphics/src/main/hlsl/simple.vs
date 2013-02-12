@@ -1,6 +1,12 @@
-cbuffer MatrixBuffer {
+cbuffer WorldMatrixBuffer {
     matrix world;
+}
+
+cbuffer ViewMatrixBuffer {
     matrix view;
+}
+
+cbuffer ProjectionMatrixBuffer {
     matrix projection;
 }
 

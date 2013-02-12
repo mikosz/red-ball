@@ -42,6 +42,8 @@ Window::Window(const std::string& windowClass, HINSTANCE hInstance, int cmdShow)
     clientHeight_ = dimensions.bottom - dimensions.top;
 
     display_.reset(new graphics::Direct3DDisplay(hWnd_));
+
+    game_.addActor(boost::shared_ptr<game::Actor>(new game::Actor(display_.get())));
 }
 
 Window::~Window() {
@@ -49,6 +51,7 @@ Window::~Window() {
 }
 
 void Window::render() {
+    game_.update();
     display_->render();
 }
 

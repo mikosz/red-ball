@@ -6,7 +6,9 @@
 
 #include <D3DX10math.h>
 
+#include "red_ball/utils/pointee.hpp"
 #include "exceptions.hpp"
+#include "MatrixBuffer.hpp"
 #include "Vertex.hpp"
 
 using namespace red_ball::graphics;
@@ -49,7 +51,12 @@ BasicModel::BasicModel(ID3D11Device* device, const ModelLoader& modelLoader) :
             );
 }
 
-void BasicModel::render(ID3D11DeviceContext* context) const {
+void BasicModel::render(ID3D11DeviceContext* context, MatrixBuffer* worldMatrixBufferPtr) const {
+    MatrixBuffer& worldMatrixBuffer = utils::pointee(worldMatrixBufferPtr);
+
+    adjust(&worldMatrixBuffer);
+    worldMatrixBuffer.bind(context, 0);
+
     samplerState_.bind(context);
     texture_.bind(context);
 
