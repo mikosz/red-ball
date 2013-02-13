@@ -319,6 +319,10 @@ Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
 
     directionalLightBuffer_.reset(new DirectionalLightBuffer(device_, D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f), D3DXVECTOR3(-1.0f, -1.0f, 1.0f)));
 
+    specularLightBuffer_.reset(new SpecularLightBuffer(device_, D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), 16.0f));
+
+    cameraBuffer_.reset(new CameraBuffer(device_, camera_.position()));
+
     renderingQueue_.reset(new RenderingQueue());
 }
 
@@ -329,11 +333,14 @@ void Direct3DDisplay::render() {
 
     camera_.viewMatrix(&viewMatrixBuffer_->matrix());
     viewMatrixBuffer_->bind(deviceContext_, 1);
-
     perspectiveProjectionMatrixBuffer_->bind(deviceContext_, 2);
+    cameraBuffer_->cameraPosition() = camera_.position();
+    cameraBuffer_->bind(deviceContext_, 3);
 
     ambientLightBuffer_->bind(deviceContext_, 0);
     directionalLightBuffer_->bind(deviceContext_, 1);
+    specularLightBuffer_->bind(deviceContext_, 2);
+
     shader_->bind(deviceContext_);
 
     renderingQueue_->render(deviceContext_, worldMatrixBuffer_.get());

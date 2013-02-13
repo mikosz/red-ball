@@ -9,24 +9,35 @@ cbuffer DirectionalLight {
     float4 diffuseColour;
     float3 lightDirection;
     
-    float padding_;
+    float padding__;
+};
+
+cbuffer SpecularLight {
+	float4 specularColour;
+	float specularPower;
+	
+	float3 padding___;
 };
 
 struct Pixel {
 	float4 position: SV_POSITION;
 	float2 textureCoordinates: TEXCOORD0;
 	float3 normal: NORMAL;
+	float3 viewDirection: TEXCOORD1;
 };
 
 float4 main(Pixel pixel) : SV_TARGET {
 	float4 textureColour = shaderTexture.Sample(samplerState, pixel.textureCoordinates);
-	
 	float4 lightColour = ambientColour;
-	
 	float lightIntensity = saturate(dot(pixel.normal, -lightDirection));
+	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	
 	if (lightIntensity > 0.0f) {
 		lightColour += diffuseColour * lightIntensity;
+		
+		float3 reflection = normalize(2 * lightIntensity * pixel.normal - lightDirection);
+		specular = pow(saturate(dot(reflection, pixel.viewDirection)), specularPower);
 	}
 	
-	return saturate(lightColour) * textureColour;
+	return saturate(lightColour * textureColour + specular);
 }

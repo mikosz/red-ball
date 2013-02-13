@@ -9,7 +9,7 @@ Features
 
 Features of this engine are currently very small.
 
-* Shading using a single diffuse and ambient light (hard-coded)
+* Shading using a single diffuse, ambient and specular light (hard-coded)
 * Loading simple Waveform .obj models (no materials)
 * Texturing using a single .dds file (hard-coded)
 

@@ -13,6 +13,10 @@ public:
 
     void viewMatrix(D3DXMATRIX* matrix) const;
 
+    const D3DXVECTOR3& position() const {
+        return position_;
+    }
+
 private:
 
     D3DXVECTOR3 position_;

@@ -17,6 +17,8 @@
 #include "MatrixBuffer.hpp"
 #include "AmbientLightBuffer.hpp"
 #include "DirectionalLightBuffer.hpp"
+#include "SpecularLightBuffer.hpp"
+#include "CameraBuffer.hpp"
 #include "Camera.hpp"
 #include "RenderingQueue.hpp"
 
@@ -69,6 +71,10 @@ private:
     boost::scoped_ptr<AmbientLightBuffer> ambientLightBuffer_;
 
     boost::scoped_ptr<DirectionalLightBuffer> directionalLightBuffer_;
+
+    boost::scoped_ptr<SpecularLightBuffer> specularLightBuffer_;
+
+    boost::scoped_ptr<CameraBuffer> cameraBuffer_;
 
     boost::shared_ptr<graphics::RenderingQueue> renderingQueue_;
 
