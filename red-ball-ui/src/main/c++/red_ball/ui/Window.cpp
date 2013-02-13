@@ -6,6 +6,7 @@
 #include <boost/bind.hpp>
 
 #include "red_ball/core/actions/Change.hpp"
+#include "red_ball/core/actions/Sequence.hpp"
 
 using namespace red_ball::ui;
 
@@ -56,7 +57,27 @@ Window::Window(const std::string& windowClass, HINSTANCE hInstance, int cmdShow)
                     boost::bind(&graphics::Model::rotateBy, boost::ref(actor->model()), 0.0f, _1, 0.0f)
                     )
             );
-    actor->scheduleAction(3.0f, rotateY);
+    core::actions::ActionPtr up(
+            new core::actions::Change<float>(
+                    1.0f,
+                    3.0f,
+                    boost::bind(&graphics::Model::translateBy, boost::ref(actor->model()), 0.0f, _1, 0.0f)
+                    )
+            );
+    core::actions::ActionPtr down(
+            new core::actions::Change<float>(
+                    -1.0f,
+                    -3.0f,
+                    boost::bind(&graphics::Model::translateBy, boost::ref(actor->model()), 0.0f, _1, 0.0f)
+                    )
+            );
+
+    boost::shared_ptr<core::actions::Sequence> moveAround(new core::actions::Sequence);
+    moveAround->enqueue(rotateY);
+    moveAround->enqueue(up);
+    moveAround->enqueue(down);
+
+    actor->scheduleAction(3.0f, moveAround);
 
     core::actions::ActionPtr rotateX(
             new core::actions::Change<float>(

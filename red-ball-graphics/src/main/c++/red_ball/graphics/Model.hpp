@@ -19,17 +19,15 @@ public:
 
     virtual size_t vertexCount() const = 0;
 
-    void moveTo(const D3DXVECTOR3& location) {
-        translation_ = location;
-    }
+    void translateBy(float x, float y, float z);
+
+    void translateBy(const D3DXVECTOR3& location);
 
     void rotateBy(float pitch, float yaw, float roll);
 
     void rotateBy(const D3DXVECTOR3& radians);
 
-    void scaleBy(const D3DXVECTOR3& times) {
-        scale_ += times;
-    }
+    void scaleBy(const D3DXVECTOR3& times);
 
 protected:
 

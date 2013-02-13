@@ -15,7 +15,7 @@ public:
     virtual ~Action() {
     }
 
-    virtual bool act(utils::Timer::Seconds time) = 0;
+    virtual bool act(utils::Timer::Seconds* timeLeft) = 0;
 
 };
 

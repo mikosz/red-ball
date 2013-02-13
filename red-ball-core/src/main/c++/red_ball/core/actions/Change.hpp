@@ -1,10 +1,11 @@
 #ifndef RED_BALL_CORE_ACTIONS_CHANGE_HPP_
 #define RED_BALL_CORE_ACTIONS_CHANGE_HPP_
 
-#include <iostream>
+#include <algorithm>
 
 #include <boost/function.hpp>
 
+#include "red_ball/utils/pointee.hpp"
 #include "Action.hpp"
 
 namespace red_ball {
@@ -19,16 +20,26 @@ public:
 
     Change(T changePerSecond, T targetChange, Changer changer) :
         changePerSecond_(changePerSecond),
-        changeRemaining_(targetChange),
+        changeRemaining_(std::abs(targetChange)),
         changer_(changer)
     {
     }
 
-    bool act(utils::Timer::Seconds time) {
-        T change = std::min(changeRemaining_, changePerSecond_ * time);
+    bool act(utils::Timer::Seconds* timeLeftPtr) {
+        utils::Timer::Seconds& timeLeft = utils::pointee(timeLeftPtr);
+
+        T change = changePerSecond_ * timeLeft;
+        if (std::abs(changeRemaining_) < std::abs(change)) {
+            change = changeRemaining_;
+        }
+        timeLeft -= change / changePerSecond_;
         changer_(change);
-        changeRemaining_ -= change;
-        return changeRemaining_ <= 0;
+        if (changeRemaining_ <= std::abs(change)) {
+            changeRemaining_ = 0;
+        } else {
+            changeRemaining_ -= std::abs(change);
+        }
+        return changeRemaining_ == 0;
     }
 
 private:

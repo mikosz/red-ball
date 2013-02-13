@@ -25,6 +25,14 @@ Model::Model() :
 {
 }
 
+void Model::translateBy(float x, float y, float z) {
+    translateBy(D3DXVECTOR3(x, y, z));
+}
+
+void Model::translateBy(const D3DXVECTOR3& location) {
+    translation_ += location;
+}
+
 void Model::rotateBy(float pitch, float yaw, float roll) {
     rotateBy(D3DXVECTOR3(pitch, yaw, roll));
 }
@@ -34,6 +42,10 @@ void Model::rotateBy(const D3DXVECTOR3& radians) {
     rotation_.x = removeFullRotations(rotation_.x);
     rotation_.y = removeFullRotations(rotation_.y);
     rotation_.z = removeFullRotations(rotation_.z);
+}
+
+void Model::scaleBy(const D3DXVECTOR3& times) {
+    scale_ += times;
 }
 
 void Model::adjust(MatrixBuffer* worldMatrixBufferPtr) const {
