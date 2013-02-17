@@ -5,13 +5,12 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
 
 #include "EventListener.hpp"
+#include "red_ball/graphics/GraphicsContext.hpp"
 #include "red_ball/graphics/Direct3DDisplay.hpp"
 #include "red_ball/game/Game.hpp"
+#include "red_ball/windows/windows.hpp"
 
 namespace red_ball {
 namespace ui {
@@ -56,6 +55,8 @@ private:
     size_t clientHeight_;
 
     EventListener eventListener_;
+
+    boost::scoped_ptr<graphics::GraphicsContext> graphicsContext_;
 
     boost::scoped_ptr<graphics::Direct3DDisplay> display_;
 

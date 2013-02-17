@@ -45,9 +45,10 @@ Window::Window(const std::string& windowClass, HINSTANCE hInstance, int cmdShow)
     clientWidth_ = dimensions.right - dimensions.left;
     clientHeight_ = dimensions.bottom - dimensions.top;
 
-    display_.reset(new graphics::Direct3DDisplay(hWnd_));
+    graphicsContext_.reset(new graphics::GraphicsContext(hWnd_));
+    display_.reset(new graphics::Direct3DDisplay(graphicsContext_.get()));
 
-    boost::shared_ptr<game::Actor> actor(new game::Actor(display_.get()));
+    boost::shared_ptr<game::Actor> actor(new game::Actor(graphicsContext_.get()));
     game_.addActor(actor);
 
     core::actions::ActionPtr rotateY(
@@ -95,7 +96,7 @@ Window::~Window() {
 
 void Window::render() {
     game_.update();
-    display_->render();
+    display_->render(graphicsContext_.get());
 }
 
 LRESULT CALLBACK Window::callbackWindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

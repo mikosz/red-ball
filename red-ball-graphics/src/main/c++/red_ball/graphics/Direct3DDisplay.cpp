@@ -5,13 +5,11 @@
 #include <string>
 #include <algorithm>
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
-#include <dxgi.h>
 #include <d3dcommon.h>
 
 #include "red_ball/utils/COMWrapper.hpp"
+#include "red_ball/utils/pointee.hpp"
+#include "check-result.hpp"
 #include "BasicShader.hpp"
 #include "RenderingQueue.hpp"
 
@@ -20,134 +18,17 @@ using namespace red_ball::graphics;
 
 namespace {
 
-void check(HRESULT result, const std::string& errorMessage) {
-    if (FAILED(result)) {
-        throw DisplayCreationError(errorMessage);
-    }
-}
-
-std::pair<int, int> screenResolution() {
-    return std::make_pair(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
-}
-
-std::pair<unsigned int, unsigned int> refreshRate(IDXGIAdapter& dxgiAdapter, const std::pair<int, int>& screenResolution) {
-    utils::COMWrapper<IDXGIOutput> dxgiOutput;
-    check(dxgiAdapter.EnumOutputs(0, &dxgiOutput.get()), "failed to enumerate outputs");
-
-    unsigned int modesCount;
-    check(dxgiOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modesCount, 0),
-            "failed to get number of display modes");
-
-    std::vector<DXGI_MODE_DESC> modes(modesCount);
-    check(dxgiOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &modesCount, &modes.front()),
-            "failed to retrieve display modes");
-
-    std::pair<unsigned int, unsigned int> rate(0, 0);
-    float comparableRate = 0.0f;
-    for (size_t i = 0; i < modes.size(); ++i) {
-        if (modes[i].Width == screenResolution.first && modes[i].Height == screenResolution.second) {
-            float thisRate = static_cast<float> (modes[i].RefreshRate.Numerator) / modes[i].RefreshRate.Denominator;
-            if (comparableRate < thisRate) {
-                rate.first = modes[i].RefreshRate.Numerator;
-                rate.second = modes[i].RefreshRate.Denominator;
-                comparableRate = thisRate;
-            }
-        }
-    }
-
-    return rate;
-}
-
-struct DisplayInfo {
-
-    struct VideoCardInfo {
-
-        size_t memory;
-
-        std::wstring name;
-
-    };
-
-    std::pair<int, int> resolution;
-
-    std::pair<unsigned int, unsigned int> refreshRate;
-
-    VideoCardInfo videoCard;
-
-};
-
-DisplayInfo::VideoCardInfo videoCardInfo(IDXGIAdapter& dxgiAdapter) {
-    DXGI_ADAPTER_DESC adapterDesc;
-    check(dxgiAdapter.GetDesc(&adapterDesc), "failed to get adapter description");
-
-    DisplayInfo::VideoCardInfo result;
-    result.memory = adapterDesc.DedicatedVideoMemory;
-    result.name = adapterDesc.Description;
-
-    return result;
-}
-
-void displayInfo(DisplayInfo* info) {
-    utils::COMWrapper<IDXGIFactory> dxgiFactory;
-    check(CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**> (&dxgiFactory.get())), "failed to create a dxgi factory");
-
-    utils::COMWrapper<IDXGIAdapter> dxgiAdapter;
-    check(dxgiFactory->EnumAdapters(0, &dxgiAdapter.get()), "failed to enumerate adapters");
-
-    info->resolution = screenResolution();
-    info->refreshRate = refreshRate(*dxgiAdapter, info->resolution);
-    info->videoCard = videoCardInfo(*dxgiAdapter);
-}
-
-void setupDevice(
-        utils::COMWrapper<ID3D11Device>* device,
-        utils::COMWrapper<ID3D11DeviceContext>* deviceContext,
-        utils::COMWrapper<IDXGISwapChain>* swapChain,
-        D3D_FEATURE_LEVEL* featureLevel,
-        HWND hWnd,
-        const DisplayInfo& info) {
-    DXGI_SWAP_CHAIN_DESC swapChainDesc;
-    ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-    swapChainDesc.Windowed = true;
-    swapChainDesc.BufferCount = 1;
-    swapChainDesc.BufferDesc.Width = info.resolution.first;
-    swapChainDesc.BufferDesc.Height = info.resolution.second;
-    swapChainDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    swapChainDesc.BufferDesc.RefreshRate.Numerator = info.refreshRate.first;
-    swapChainDesc.BufferDesc.RefreshRate.Denominator = info.refreshRate.second;
-    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.OutputWindow = hWnd;
-    swapChainDesc.SampleDesc.Count = 1;
-    swapChainDesc.SampleDesc.Quality = 0;
-    swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-    static const D3D_FEATURE_LEVEL acceptedFeatureLevels[] = {
-            D3D_FEATURE_LEVEL_11_0,
-            D3D_FEATURE_LEVEL_10_1,
-            D3D_FEATURE_LEVEL_10_0,
-            D3D_FEATURE_LEVEL_9_3,
-            D3D_FEATURE_LEVEL_9_2,
-            D3D_FEATURE_LEVEL_9_1,
-    };
-    static const size_t TOTAL_FEATURE_LEVELS = sizeof(acceptedFeatureLevels) / sizeof(D3D_FEATURE_LEVEL);
-
-    check(
-            D3D11CreateDeviceAndSwapChain(0, D3D_DRIVER_TYPE_HARDWARE, 0, 0, acceptedFeatureLevels,
-                    TOTAL_FEATURE_LEVELS, D3D11_SDK_VERSION,
-                    &swapChainDesc, &swapChain->get(), &device->get(), featureLevel, &deviceContext->get()),
-            "failed to create device and swap chain");
-}
-
 void setupRenderTargetView(
         utils::COMWrapper<ID3D11RenderTargetView>* renderTargetView,
         IDXGISwapChain& swapChain,
         ID3D11Device& device
         ) {
     utils::COMWrapper<ID3D11Texture2D> buffer;
-    check(swapChain.GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**> (&buffer.get())), "failed to retrieve back buffer");
-    check(device.CreateRenderTargetView(buffer, 0, &renderTargetView->get()), "failed to create a render target view");
+    checkResult<DisplayCreationError>(
+            swapChain.GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&buffer.get())),
+            "failed to retrieve back buffer");
+    checkResult<DisplayCreationError>(device.CreateRenderTargetView(buffer, 0, &renderTargetView->get()),
+            "failed to create a render target view");
 }
 
 void setupDepthBuffer(
@@ -267,47 +148,46 @@ void setupOrthographicProjectionMatrix(
 
 }  // anonymous namespace
 
-Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
+Direct3DDisplay::Direct3DDisplay(GraphicsContext* graphicsContextPtr) :
     camera_(
             D3DXVECTOR3(0.0f, 0.0f, -10.0f),
             D3DXVECTOR3(0.0f, 0.0f, 0.0f)
             )
 {
-    DisplayInfo info;
-    displayInfo(&info);
+    GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
 
-    D3D_FEATURE_LEVEL featureLevel;
-    setupDevice(&device_, &deviceContext_, &swapChain_, &featureLevel, hWnd, info);
-    setupRenderTargetView(&renderTargetView_, *swapChain_, *device_);
-    setupDepthBuffer(&depthBuffer_, *device_, info.resolution.first, info.resolution.second);
-    setupDepthStencilState(&depthStencilState_, *device_, *deviceContext_);
-    setupDepthStencilView(&depthStencilView_, depthBuffer_, device_);
-    setupRasteriser(&rasteriserState_, *device_, *deviceContext_);
-    setupViewport(deviceContext_, info.resolution.first, info.resolution.second);
+    setupRenderTargetView(&renderTargetView_, graphicsContext.swapChain(), graphicsContext.device());
+    setupDepthBuffer(&depthBuffer_, graphicsContext.device(), graphicsContext.displayInfo().resolution().first,
+            graphicsContext.displayInfo().resolution().second);
+    setupDepthStencilState(&depthStencilState_, graphicsContext.device(), graphicsContext.deviceContext());
+    setupDepthStencilView(&depthStencilView_, depthBuffer_, &graphicsContext.device());
+    setupRasteriser(&rasteriserState_, graphicsContext.device(), graphicsContext.deviceContext());
+    setupViewport(&graphicsContext.deviceContext(), graphicsContext.displayInfo().resolution().first,
+            graphicsContext.displayInfo().resolution().second);
 
-    orthographicProjectionMatrixBuffer_.reset(new MatrixBuffer(device_));
+    orthographicProjectionMatrixBuffer_.reset(new MatrixBuffer(&graphicsContext.device()));
     setupOrthographicProjectionMatrix(
             &orthographicProjectionMatrixBuffer_->matrix(),
-            info.resolution.first,
-            info.resolution.second
+            graphicsContext.displayInfo().resolution().first,
+            graphicsContext.displayInfo().resolution().second
             );
 
-    perspectiveProjectionMatrixBuffer_.reset(new MatrixBuffer(device_));
+    perspectiveProjectionMatrixBuffer_.reset(new MatrixBuffer(&graphicsContext.device()));
     setupPerspectiveProjectionMatrix(
             &perspectiveProjectionMatrixBuffer_->matrix(),
-            info.resolution.first,
-            info.resolution.second
+            graphicsContext.displayInfo().resolution().first,
+            graphicsContext.displayInfo().resolution().second
             );
 
-    viewMatrixBuffer_.reset(new MatrixBuffer(device_));
+    viewMatrixBuffer_.reset(new MatrixBuffer(&graphicsContext.device()));
 
-    worldMatrixBuffer_.reset(new MatrixBuffer(device_));
+    worldMatrixBuffer_.reset(new MatrixBuffer(&graphicsContext.device()));
 
-    deviceContext_->OMSetRenderTargets(1, &renderTargetView_.get(), depthStencilView_);
+    graphicsContext.deviceContext().OMSetRenderTargets(1, &renderTargetView_.get(), depthStencilView_);
 
     shader_.reset(
             new BasicShader(
-                    device_,
+                    &graphicsContext.device(),
                     "red-ball-graphics/src/main/hlsl/simple.vs",
                     "main",
                     "red-ball-graphics/src/main/hlsl/simple.ps",
@@ -315,35 +195,44 @@ Direct3DDisplay::Direct3DDisplay(HWND hWnd) :
                     )
     );
 
-    ambientLightBuffer_.reset(new AmbientLightBuffer(device_, D3DXVECTOR4(0.15f, 0.15f, 0.15f, 1.0f)));
+    ambientLightBuffer_.reset(
+            new AmbientLightBuffer(&graphicsContext.device(), D3DXVECTOR4(0.15f, 0.15f, 0.15f, 1.0f)));
 
-    directionalLightBuffer_.reset(new DirectionalLightBuffer(device_, D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f), D3DXVECTOR3(-1.0f, -1.0f, 1.0f)));
+    directionalLightBuffer_.reset(
+            new DirectionalLightBuffer(&graphicsContext.device(), D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f),
+                    D3DXVECTOR3(-1.0f, -1.0f, 1.0f)));
 
-    specularLightBuffer_.reset(new SpecularLightBuffer(device_, D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), 16.0f));
+    specularLightBuffer_.reset(
+            new SpecularLightBuffer(&graphicsContext.device(), D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), 16.0f));
 
-    cameraBuffer_.reset(new CameraBuffer(device_, camera_.position()));
-
-    renderingQueue_.reset(new RenderingQueue());
+    cameraBuffer_.reset(new CameraBuffer(&graphicsContext.device(), camera_.position()));
 }
 
-void Direct3DDisplay::render() {
+void Direct3DDisplay::render(GraphicsContext* graphicsContextPtr) {
+    GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
+
     static const float BLACK[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    deviceContext_->ClearRenderTargetView(renderTargetView_, BLACK);
-    deviceContext_->ClearDepthStencilView(depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    graphicsContext.deviceContext().ClearRenderTargetView(renderTargetView_, BLACK);
+    graphicsContext.deviceContext().ClearDepthStencilView(depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     camera_.viewMatrix(&viewMatrixBuffer_->matrix());
-    viewMatrixBuffer_->bind(deviceContext_, 1);
-    perspectiveProjectionMatrixBuffer_->bind(deviceContext_, 2);
+    viewMatrixBuffer_->bind(&graphicsContext.deviceContext(), 1);
+    perspectiveProjectionMatrixBuffer_->bind(&graphicsContext.deviceContext(), 2);
     cameraBuffer_->cameraPosition() = camera_.position();
-    cameraBuffer_->bind(deviceContext_, 3);
+    cameraBuffer_->bind(&graphicsContext.deviceContext(), 3);
 
-    ambientLightBuffer_->bind(deviceContext_, 0);
-    directionalLightBuffer_->bind(deviceContext_, 1);
-    specularLightBuffer_->bind(deviceContext_, 2);
+    ambientLightBuffer_->bind(&graphicsContext.deviceContext(), 0);
+    directionalLightBuffer_->bind(&graphicsContext.deviceContext(), 1);
+    specularLightBuffer_->bind(&graphicsContext.deviceContext(), 2);
 
-    shader_->bind(deviceContext_);
+    shader_->bind(&graphicsContext.deviceContext());
 
-    renderingQueue_->render(deviceContext_, worldMatrixBuffer_.get());
+    graphicsContext.renderingQueue()->render(&graphicsContext.deviceContext(), worldMatrixBuffer_.get());
 
-    swapChain_->Present(1, 0);
+    graphicsContext.swapChain().Present(1, 0);
+}
+
+DisplayCreationError::DisplayCreationError(HRESULT result, const std::string& message) :
+        DirectXException(result, "Failed to create a direct3d display. Error: " + message)
+{
 }

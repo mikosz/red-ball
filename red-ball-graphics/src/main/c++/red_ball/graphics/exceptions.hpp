@@ -1,10 +1,8 @@
 #ifndef RED_BALL_GRAPHICS_EXCEPTIONS_HPP_
 #define RED_BALL_GRAPHICS_EXCEPTIONS_HPP_
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
 #include "red_ball/core/exceptions.hpp"
+#include "red_ball/windows/windows.hpp"
 
 namespace red_ball {
 namespace graphics {

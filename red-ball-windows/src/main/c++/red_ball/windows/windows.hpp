@@ -1,0 +1,8 @@
+#ifndef RED_BALL_WINDOWS_WINDOWS_HPP_
+#define RED_BALL_WINDOWS_WINDOWS_HPP_
+
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+#endif /* RED_BALL_WINDOWS_WINDOWS_HPP_ */

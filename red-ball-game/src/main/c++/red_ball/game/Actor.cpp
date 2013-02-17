@@ -2,15 +2,18 @@
 
 #include "red_ball/graphics/ObjFileLoader.hpp"
 #include "red_ball/graphics/BasicModel.hpp"
+#include "red_ball/utils/pointee.hpp"
 
 using namespace red_ball;
 using namespace red_ball::game;
 
-Actor::Actor(graphics::Direct3DDisplay* display) :
-    renderingQueue_(display->renderingQueue())
+Actor::Actor(graphics::GraphicsContext* graphicsContextPtr) :
+    renderingQueue_(graphicsContextPtr->renderingQueue())
 {
+    graphics::GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
+
     graphics::ObjFileLoader loader("red-ball-graphics/src/main/resources/cube.objfile");
-    model_.reset(new graphics::BasicModel(&display->device(), loader));
+    model_.reset(new graphics::BasicModel(&graphicsContext.device(), loader));
     modelId_ = renderingQueue_->add(model_);
 }
 

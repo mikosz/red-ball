@@ -3,15 +3,13 @@
 
 #include <stdexcept>
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
 #include <boost/scoped_ptr.hpp>
 
 #include <d3d11.h>
 #include <d3dx10math.h>
 
 #include "red_ball/utils/COMWrapper.hpp"
+#include "red_ball/windows/windows.hpp"
 #include "Shader.hpp"
 #include "Model.hpp"
 #include "MatrixBuffer.hpp"
@@ -21,6 +19,7 @@
 #include "CameraBuffer.hpp"
 #include "Camera.hpp"
 #include "RenderingQueue.hpp"
+#include "GraphicsContext.hpp"
 
 namespace red_ball {
 namespace graphics {
@@ -28,25 +27,11 @@ namespace graphics {
 class Direct3DDisplay {
 public:
 
-    Direct3DDisplay(HWND hWnd);
+    Direct3DDisplay(GraphicsContext* graphicsContext);
 
-    void render();
-
-    boost::shared_ptr<graphics::RenderingQueue> renderingQueue() {
-        return renderingQueue_;
-    }
-
-    ID3D11Device& device() {
-        return *device_;
-    }
+    void render(GraphicsContext* graphicsContext);
 
 private:
-
-    utils::COMWrapper<ID3D11Device> device_;
-
-    utils::COMWrapper<ID3D11DeviceContext> deviceContext_;
-
-    utils::COMWrapper<IDXGISwapChain> swapChain_;
 
     utils::COMWrapper<ID3D11RenderTargetView> renderTargetView_;
 
@@ -76,18 +61,14 @@ private:
 
     boost::scoped_ptr<CameraBuffer> cameraBuffer_;
 
-    boost::shared_ptr<graphics::RenderingQueue> renderingQueue_;
-
     Camera camera_;
 
 };
 
-class DisplayCreationError : public std::runtime_error {
+class DisplayCreationError : public DirectXException {
 public:
 
-    DisplayCreationError(const std::string& message) :
-        std::runtime_error("Failed to create a direct3d display. Error: "/* + message*/) {
-    }
+    DisplayCreationError(HRESULT result, const std::string& message);
 
 };
 

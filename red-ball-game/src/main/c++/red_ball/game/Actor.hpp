@@ -8,7 +8,7 @@
 #include "red_ball/core/actions/Timeline.hpp"
 #include "red_ball/graphics/Model.hpp"
 #include "red_ball/graphics/RenderingQueue.hpp"
-#include "red_ball/graphics/Direct3DDisplay.hpp"
+#include "red_ball/graphics/GraphicsContext.hpp"
 #include "red_ball/utils/Timer.hpp"
 
 namespace red_ball {
@@ -17,7 +17,7 @@ namespace game {
 class Actor {
 public:
 
-    Actor(graphics::Direct3DDisplay* display);
+    Actor(graphics::GraphicsContext* graphicsContext);
 
     ~Actor();
 
