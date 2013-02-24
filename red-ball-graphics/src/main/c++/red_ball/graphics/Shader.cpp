@@ -8,6 +8,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "red_ball/utils/pointee.hpp"
+
 using namespace red_ball;
 using namespace red_ball::graphics;
 
@@ -99,44 +101,76 @@ void createPixelShader(
 }  // anonymous namespace
 
 Shader::Shader(
-        ID3D11Device* device,
+        GraphicsContext* graphicsContextPtr,
         const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDescriptions,
         const boost::filesystem::path& shaderFile,
         const std::string& vertexShaderMain,
         const std::string& pixelShaderMain
-        ) {
-    createVertexShader(
-            &vertexShader_,
-            &inputLayout_,
-            device,
+        )
+{
+    GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
+
+    initialise_(
+            this,
+            &graphicsContext,
             inputLayoutDescriptions,
             shaderFile,
-            vertexShaderMain
+            vertexShaderMain,
+            shaderFile,
+            pixelShaderMain
             );
-    createPixelShader(&pixelShader_, device, shaderFile, pixelShaderMain);
 }
 
 Shader::Shader(
-        ID3D11Device* device,
+        GraphicsContext* graphicsContextPtr,
         const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDescriptions,
         const boost::filesystem::path& vertexShaderFile,
         const std::string& vertexShaderMain,
         const boost::filesystem::path& pixelShaderFile,
         const std::string& pixelShaderMain
         ) {
+    GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
+
+    initialise_(
+            this,
+            &graphicsContext,
+            inputLayoutDescriptions,
+            vertexShaderFile,
+            vertexShaderMain,
+            pixelShaderFile,
+            pixelShaderMain
+            );
+}
+
+void Shader::bindShader(GraphicsContext* graphicsContextPtr) const {
+    GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
+    ID3D11DeviceContext& deviceContext = graphicsContext.deviceContext();
+
+    deviceContext.IASetInputLayout(inputLayout_);
+    deviceContext.VSSetShader(vertexShader_, 0, 0);
+    deviceContext.PSSetShader(pixelShader_, 0, 0);
+}
+
+void Shader::initialise_(
+        Shader* shaderPtr,
+        GraphicsContext* graphicsContextPtr,
+        const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDescriptions,
+        const boost::filesystem::path& vertexShaderFile,
+        const std::string& vertexShaderMain,
+        const boost::filesystem::path& pixelShaderFile,
+        const std::string& pixelShaderMain
+        )
+{
+    Shader& shader = utils::pointee(shaderPtr);
+    GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
+
     createVertexShader(
-            &vertexShader_,
-            &inputLayout_,
-            device,
+            &shader.vertexShader_,
+            &shader.inputLayout_,
+            &graphicsContext.device(),
             inputLayoutDescriptions,
             vertexShaderFile,
             vertexShaderMain
             );
-    createPixelShader(&pixelShader_, device, pixelShaderFile, pixelShaderMain);
-}
-
-void Shader::bind(ID3D11DeviceContext* deviceContext) const {
-    deviceContext->IASetInputLayout(inputLayout_);
-    deviceContext->VSSetShader(vertexShader_, 0, 0);
-    deviceContext->PSSetShader(pixelShader_, 0, 0);
+    createPixelShader(&shader.pixelShader_, &graphicsContext.device(), pixelShaderFile, pixelShaderMain);
 }

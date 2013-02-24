@@ -8,7 +8,7 @@
 
 #include "EventListener.hpp"
 #include "red_ball/graphics/GraphicsContext.hpp"
-#include "red_ball/graphics/Direct3DDisplay.hpp"
+#include "red_ball/graphics/A3DView.hpp"
 #include "red_ball/game/Game.hpp"
 #include "red_ball/windows/windows.hpp"
 
@@ -58,7 +58,7 @@ private:
 
     boost::scoped_ptr<graphics::GraphicsContext> graphicsContext_;
 
-    boost::scoped_ptr<graphics::Direct3DDisplay> display_;
+    boost::scoped_ptr<graphics::A3DView> display_;
 
     game::Game game_;
 

@@ -51,12 +51,7 @@ BasicModel::BasicModel(ID3D11Device* device, const ModelLoader& modelLoader) :
             );
 }
 
-void BasicModel::render(ID3D11DeviceContext* context, MatrixBuffer* worldMatrixBufferPtr) const {
-    MatrixBuffer& worldMatrixBuffer = utils::pointee(worldMatrixBufferPtr);
-
-    adjust(&worldMatrixBuffer);
-    worldMatrixBuffer.bind(context, 0);
-
+void BasicModel::render(ID3D11DeviceContext* context) const {
     samplerState_.bind(context);
     texture_.bind(context);
 

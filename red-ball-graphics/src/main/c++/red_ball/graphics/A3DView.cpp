@@ -1,4 +1,4 @@
-#include "Direct3DDisplay.hpp"
+#include "A3DView.hpp"
 
 #include <vector>
 #include <utility>
@@ -129,31 +129,9 @@ void setupViewport(
     deviceContext->RSSetViewports(1, &viewport);
 }
 
-void setupPerspectiveProjectionMatrix(
-        D3DXMATRIX* matrix,
-        size_t screenWidth,
-        size_t screenHeight
-        ) {
-    float aspectRatio = static_cast<float> (screenWidth) / screenHeight;
-    D3DXMatrixPerspectiveFovLH(matrix, D3DX_PI / 4.0f, aspectRatio, 1.0f, 100.0f);
-}
-
-void setupOrthographicProjectionMatrix(
-        D3DXMATRIX* matrix,
-        size_t screenWidth,
-        size_t screenHeight
-        ) {
-    D3DXMatrixOrthoLH(matrix, screenWidth, screenHeight, 1.0f, 100.0f);
-}
-
 }  // anonymous namespace
 
-Direct3DDisplay::Direct3DDisplay(GraphicsContext* graphicsContextPtr) :
-    camera_(
-            D3DXVECTOR3(0.0f, 0.0f, -10.0f),
-            D3DXVECTOR3(0.0f, 0.0f, 0.0f)
-            )
-{
+A3DView::A3DView(GraphicsContext* graphicsContextPtr) {
     GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
 
     setupRenderTargetView(&renderTargetView_, graphicsContext.swapChain(), graphicsContext.device());
@@ -165,69 +143,29 @@ Direct3DDisplay::Direct3DDisplay(GraphicsContext* graphicsContextPtr) :
     setupViewport(&graphicsContext.deviceContext(), graphicsContext.displayInfo().resolution().first,
             graphicsContext.displayInfo().resolution().second);
 
-    orthographicProjectionMatrixBuffer_.reset(new MatrixBuffer(&graphicsContext.device()));
-    setupOrthographicProjectionMatrix(
-            &orthographicProjectionMatrixBuffer_->matrix(),
-            graphicsContext.displayInfo().resolution().first,
-            graphicsContext.displayInfo().resolution().second
-            );
-
-    perspectiveProjectionMatrixBuffer_.reset(new MatrixBuffer(&graphicsContext.device()));
-    setupPerspectiveProjectionMatrix(
-            &perspectiveProjectionMatrixBuffer_->matrix(),
-            graphicsContext.displayInfo().resolution().first,
-            graphicsContext.displayInfo().resolution().second
-            );
-
-    viewMatrixBuffer_.reset(new MatrixBuffer(&graphicsContext.device()));
-
-    worldMatrixBuffer_.reset(new MatrixBuffer(&graphicsContext.device()));
-
     graphicsContext.deviceContext().OMSetRenderTargets(1, &renderTargetView_.get(), depthStencilView_);
 
     shader_.reset(
             new BasicShader(
-                    &graphicsContext.device(),
+                    &graphicsContext,
                     "red-ball-graphics/src/main/hlsl/simple.vs",
                     "main",
                     "red-ball-graphics/src/main/hlsl/simple.ps",
                     "main"
                     )
     );
-
-    ambientLightBuffer_.reset(
-            new AmbientLightBuffer(&graphicsContext.device(), D3DXVECTOR4(0.15f, 0.15f, 0.15f, 1.0f)));
-
-    directionalLightBuffer_.reset(
-            new DirectionalLightBuffer(&graphicsContext.device(), D3DXVECTOR4(0.0f, 1.0f, 0.0f, 1.0f),
-                    D3DXVECTOR3(-1.0f, -1.0f, 1.0f)));
-
-    specularLightBuffer_.reset(
-            new SpecularLightBuffer(&graphicsContext.device(), D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f), 16.0f));
-
-    cameraBuffer_.reset(new CameraBuffer(&graphicsContext.device(), camera_.position()));
 }
 
-void Direct3DDisplay::render(GraphicsContext* graphicsContextPtr) {
+void A3DView::render(GraphicsContext* graphicsContextPtr) {
     GraphicsContext& graphicsContext = utils::pointee(graphicsContextPtr);
 
     static const float BLACK[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     graphicsContext.deviceContext().ClearRenderTargetView(renderTargetView_, BLACK);
     graphicsContext.deviceContext().ClearDepthStencilView(depthStencilView_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    camera_.viewMatrix(&viewMatrixBuffer_->matrix());
-    viewMatrixBuffer_->bind(&graphicsContext.deviceContext(), 1);
-    perspectiveProjectionMatrixBuffer_->bind(&graphicsContext.deviceContext(), 2);
-    cameraBuffer_->cameraPosition() = camera_.position();
-    cameraBuffer_->bind(&graphicsContext.deviceContext(), 3);
+    shader_->bind(&graphicsContext);
 
-    ambientLightBuffer_->bind(&graphicsContext.deviceContext(), 0);
-    directionalLightBuffer_->bind(&graphicsContext.deviceContext(), 1);
-    specularLightBuffer_->bind(&graphicsContext.deviceContext(), 2);
-
-    shader_->bind(&graphicsContext.deviceContext());
-
-    graphicsContext.renderingQueue()->render(&graphicsContext.deviceContext(), worldMatrixBuffer_.get());
+    graphicsContext.renderingQueue()->render(&graphicsContext, shader_.get());
 
     graphicsContext.swapChain().Present(1, 0);
 }

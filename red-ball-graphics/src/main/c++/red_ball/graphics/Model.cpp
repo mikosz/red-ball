@@ -48,9 +48,7 @@ void Model::scaleBy(const D3DXVECTOR3& times) {
     scale_ += times;
 }
 
-void Model::adjust(MatrixBuffer* worldMatrixBufferPtr) const {
-    MatrixBuffer& matrixBuffer = utils::pointee(worldMatrixBufferPtr);
-
+D3DXMATRIX Model::worldMatrix() const {
     D3DXMATRIX rotationMatrix;
     D3DXMatrixRotationYawPitchRoll(&rotationMatrix, rotation_.y, rotation_.x, rotation_.z);
 
@@ -60,5 +58,5 @@ void Model::adjust(MatrixBuffer* worldMatrixBufferPtr) const {
     D3DXMATRIX translationMatrix;
     D3DXMatrixTranslation(&translationMatrix, translation_.x, translation_.y, translation_.z);
 
-    matrixBuffer.matrix() = rotationMatrix * scaleMatrix * translationMatrix;
+    return rotationMatrix * scaleMatrix * translationMatrix;
 }

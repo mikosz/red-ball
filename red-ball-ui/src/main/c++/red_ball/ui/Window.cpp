@@ -46,7 +46,7 @@ Window::Window(const std::string& windowClass, HINSTANCE hInstance, int cmdShow)
     clientHeight_ = dimensions.bottom - dimensions.top;
 
     graphicsContext_.reset(new graphics::GraphicsContext(hWnd_));
-    display_.reset(new graphics::Direct3DDisplay(graphicsContext_.get()));
+    display_.reset(new graphics::A3DView(graphicsContext_.get()));
 
     boost::shared_ptr<game::Actor> actor(new game::Actor(graphicsContext_.get()));
     game_.addActor(actor);

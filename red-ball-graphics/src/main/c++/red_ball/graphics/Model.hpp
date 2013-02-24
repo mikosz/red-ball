@@ -15,7 +15,7 @@ public:
     virtual ~Model() {
     }
 
-    virtual void render(ID3D11DeviceContext* context, MatrixBuffer* worldMatrixBuffer) const = 0;
+    virtual void render(ID3D11DeviceContext* context) const = 0;
 
     virtual size_t vertexCount() const = 0;
 
@@ -29,11 +29,11 @@ public:
 
     void scaleBy(const D3DXVECTOR3& times);
 
+    D3DXMATRIX worldMatrix() const;
+
 protected:
 
     Model();
-
-    void adjust(MatrixBuffer* worldMatrixBuffer) const;
 
 private:
 

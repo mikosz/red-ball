@@ -1,5 +1,5 @@
-#ifndef RED_BALL_GRAPHICS_DIRECT3DDISPLAY_HPP_
-#define RED_BALL_GRAPHICS_DIRECT3DDISPLAY_HPP_
+#ifndef RED_BALL_GRAPHICS_A3DVIEW_HPP_
+#define RED_BALL_GRAPHICS_A3DVIEW_HPP_
 
 #include <stdexcept>
 
@@ -12,22 +12,16 @@
 #include "red_ball/windows/windows.hpp"
 #include "Shader.hpp"
 #include "Model.hpp"
-#include "MatrixBuffer.hpp"
-#include "AmbientLightBuffer.hpp"
-#include "DirectionalLightBuffer.hpp"
-#include "SpecularLightBuffer.hpp"
-#include "CameraBuffer.hpp"
-#include "Camera.hpp"
 #include "RenderingQueue.hpp"
 #include "GraphicsContext.hpp"
 
 namespace red_ball {
 namespace graphics {
 
-class Direct3DDisplay {
+class A3DView {
 public:
 
-    Direct3DDisplay(GraphicsContext* graphicsContext);
+    A3DView(GraphicsContext* graphicsContext);
 
     void render(GraphicsContext* graphicsContext);
 
@@ -45,24 +39,6 @@ private:
 
     boost::scoped_ptr<Shader> shader_;
 
-    boost::scoped_ptr<MatrixBuffer> worldMatrixBuffer_;
-
-    boost::scoped_ptr<MatrixBuffer> perspectiveProjectionMatrixBuffer_;
-
-    boost::scoped_ptr<MatrixBuffer> orthographicProjectionMatrixBuffer_;
-
-    boost::scoped_ptr<MatrixBuffer> viewMatrixBuffer_;
-
-    boost::scoped_ptr<AmbientLightBuffer> ambientLightBuffer_;
-
-    boost::scoped_ptr<DirectionalLightBuffer> directionalLightBuffer_;
-
-    boost::scoped_ptr<SpecularLightBuffer> specularLightBuffer_;
-
-    boost::scoped_ptr<CameraBuffer> cameraBuffer_;
-
-    Camera camera_;
-
 };
 
 class DisplayCreationError : public DirectXException {
@@ -75,4 +51,4 @@ public:
 }  // namespace graphics
 }  // namespace red_ball
 
-#endif /* RED_BALL_GRAPHICS_DIRECT3DDISPLAY_HPP_ */
+#endif /* RED_BALL_GRAPHICS_A3DVIEW_HPP_ */

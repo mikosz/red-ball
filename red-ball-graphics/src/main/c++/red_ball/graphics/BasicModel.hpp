@@ -15,7 +15,7 @@ public:
 
     BasicModel(ID3D11Device* device, const ModelLoader& modelLoader);
 
-    void render(ID3D11DeviceContext* context, MatrixBuffer* worldMatrixBuffer) const;
+    void render(ID3D11DeviceContext* context) const;
 
     size_t vertexCount() const;
 

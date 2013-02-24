@@ -12,6 +12,8 @@
 namespace red_ball {
 namespace graphics {
 
+class Shader;
+class GraphicsContext;
 class MatrixBuffer;
 
 class RenderingQueue {
@@ -21,7 +23,7 @@ public:
 
     typedef Models::iterator ModelId;
 
-    void render(ID3D11DeviceContext* context, MatrixBuffer* worldMatrixBufferPtr) const;
+    void render(GraphicsContext* graphicsContext, Shader* shader) const;
 
     ModelId add(boost::shared_ptr<Model> model);
 
